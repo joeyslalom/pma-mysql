@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: phpmyadmin
+  name: phpmyadmin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: phpmyadmin
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: phpmyadmin
+    spec:
+      containers:
+      - image: library/phpmyadmin:5.0.4-apache
+        name: phpmyadmin
+        resources: {}
+        env:
+          - name: PMA_HOST
+            value: "$(MYSQL_SERVICE_HOST)"
+          - name: PMA_USER
+            value: root
+          - name: PMA_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mysql
+                key: password
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: phpmyadmin
+  name: phpmyadmin
+spec:
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 80
+  selector:
+    app: phpmyadmin
+status:
+  loadBalancer: {}
